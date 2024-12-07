@@ -1,32 +1,45 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false); 
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoading(true); // Ativa o estado de carregamento
+  
     try {
       const response = await api.post("/auth/login", { email, password });
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
-
-      if (response.data.user.role === "admin") {
-        navigate("/users");
-      } else {
-        navigate("/");
-      }
+  
+      toast.success("Login realizado com sucesso!");
+  
+      // Aguarda o tempo do toast antes de navegar
+      setTimeout(() => {
+        if (response.data.user.role === "admin") {
+          navigate("/users");
+        } else {
+          navigate("/");
+        }
+      }, 2000); // Delay para sincronizar com a mensagem do toast
     } catch (err) {
-      setError("Credenciais inválidas! Verifique seu e-mail e senha.");
+      toast.error("Credenciais inválidas! Verifique seu e-mail e senha.");
+    } finally {
+      setTimeout(() => setIsLoading(false), 2000); // Desativa o carregamento após o delay
     }
   };
+  
 
   return (
     <div style={styles.container}>
+      <ToastContainer />
       <div style={styles.loginBox}>
         <h2 style={styles.title}>LOGIN</h2>
         <form onSubmit={handleLogin} style={styles.form}>
@@ -44,9 +57,12 @@ const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
             style={styles.input}
           />
-          {error && <p style={styles.error}>{error}</p>}
-          <button type="submit" style={styles.button}>
-            LOGIN
+          <button
+            type="submit"
+            style={styles.button}
+            disabled={isLoading}
+          >
+            {isLoading ? "Carregando..." : "LOGIN"}
           </button>
         </form>
       </div>
@@ -60,15 +76,15 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     height: "100vh",
-    backgroundColor: "#2c3e50", 
+    backgroundColor: "#2c3e50",
   },
   loginBox: {
-    backgroundColor: "#34495e", 
+    backgroundColor: "#34495e",
     borderRadius: "10px",
     padding: "30px",
     width: "400px",
     boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-    color: "#ecf0f1", 
+    color: "#ecf0f1",
   },
   title: {
     textAlign: "center",
@@ -89,17 +105,12 @@ const styles = {
   },
   button: {
     padding: "10px",
-    backgroundColor: "#1abc9c", 
+    backgroundColor: "#1abc9c",
     border: "none",
     borderRadius: "5px",
     color: "#ecf0f1",
     fontSize: "16px",
     cursor: "pointer",
-  },
-  error: {
-    color: "red",
-    marginBottom: "15px",
-    textAlign: "center",
   },
 };
 
