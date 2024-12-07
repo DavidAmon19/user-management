@@ -1,0 +1,14 @@
+# Geral
+node_modules/
+.env
+.DS_Store
+
+# Docker
+*.log
+docker-compose.override.yml
+
+# Frontend build
+management-front/build/
+
+# Backend logs
+management-api/logs/
