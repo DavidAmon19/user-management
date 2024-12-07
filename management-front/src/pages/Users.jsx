@@ -5,91 +5,93 @@ import "react-toastify/dist/ReactToastify.css";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("user");
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [loggedInUser, setLoggedInUser] = useState({});
+  const [showModal, setShowModal] = useState(false); 
+  const [editingUser, setEditingUser] = useState(null);
+
+  const loggedUser = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    setLoggedInUser(user);
+    fetchUsers();
+  }, [page]);
 
-    api.get("/users").then((response) => {
-      setUsers(response.data);
-    });
-  }, []);
-
-  const handleAddUser = () => {
-    api
-      .post("/users", { name, email, password, role })
-      .then((response) => {
-        setUsers([...users, response.data.user]);
-        setName("");
-        setEmail("");
-        setPassword("");
-        setRole("user");
-        toast.success("Usuário adicionado com sucesso!");
-      })
-      .catch(() => toast.error("Erro ao adicionar usuário!"));
+  const fetchUsers = async () => {
+    try {
+      const response = await api.get(`/users?page=${page}&limit=5`);
+      setUsers(response.data.users);
+      setTotalPages(response.data.totalPages);
+    } catch (error) {
+      toast.error("Erro ao carregar usuários!");
+    }
   };
 
-  const handleDeleteUser = (id) => {
-    api
-      .delete(`/users/${id}`)
-      .then(() => {
-        setUsers(users.filter((user) => user.id !== id));
-        toast.success("Usuário deletado com sucesso!");
-      })
-      .catch((err) => {
-        toast.error(err.response?.data?.error || "Erro ao deletar usuário!");
-      });
+  const handleAddUser = async () => {
+    try {
+      const response = await api.post("/users", { name, email, password, role });
+      toast.success("Usuário adicionado com sucesso!");
+      fetchUsers();
+      setName("");
+      setEmail("");
+      setPassword("");
+      setRole("user");
+    } catch {
+      toast.error("Erro ao adicionar usuário!");
+    }
   };
 
-  const handleUpdateUser = () => {
-    api
-      .put(`/users/${selectedUser.id}`, {
-        name: selectedUser.name,
-        email: selectedUser.email,
-        role: selectedUser.role,
-      })
-      .then(() => {
-        setUsers(
-          users.map((user) =>
-            user.id === selectedUser.id ? { ...selectedUser } : user
-          )
-        );
-        setSelectedUser(null);
-        toast.success("Usuário atualizado com sucesso!");
-      })
-      .catch((err) => {
-        toast.error(err.response?.data?.error || "Erro ao atualizar usuário!");
-      });
+  const handleDeleteUser = async (id) => {
+    try {
+      await api.delete(`/users/${id}`);
+      toast.success("Usuário excluído com sucesso!");
+      fetchUsers();
+    } catch {
+      toast.error("Erro ao excluir usuário!");
+    }
   };
 
-  const openEditModal = (user) => {
-    setSelectedUser({ ...user });
+  const handleEditUser = (user) => {
+    setEditingUser(user);
+    setShowModal(true);
   };
 
-  const closeEditModal = () => {
-    setSelectedUser(null);
+  const saveEditUser = async () => {
+    try {
+      await api.put(`/users/${editingUser.id}`, editingUser);
+      toast.success("Usuário atualizado com sucesso!");
+      setShowModal(false);
+      fetchUsers();
+    } catch {
+      toast.error("Erro ao atualizar usuário!");
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (page > 1) setPage(page - 1);
+  };
+
+  const handleNextPage = () => {
+    if (page < totalPages) setPage(page + 1);
   };
 
   return (
     <div>
       <ToastContainer />
       <h1>Cadastro de Usuários</h1>
-      <div className="d-flex align-items-start gap-2 mt-3 mb-5">
-        <p className="fs-5">Usuário logado: {loggedInUser.name} </p>
+      <div className="d-flex align-items-center mb-4 gap-4">
+        <span>Usuário logado: {loggedUser.name}</span>
         <button
-          className="btn btn-warning btn-sm"
-          onClick={() => openEditModal(loggedInUser)}
+          className="btn btn-warning"
+          onClick={() => handleEditUser(loggedUser)}
         >
           Editar
         </button>
       </div>
-      {loggedInUser.role === "admin" && (
+      {loggedUser.role === "admin" && (
         <div className="d-flex mb-4">
           <input
             className="form-control"
@@ -97,7 +99,6 @@ const Users = () => {
             placeholder="Nome"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            style={{ marginRight: "10px" }}
           />
           <input
             className="form-control"
@@ -105,7 +106,6 @@ const Users = () => {
             placeholder="E-mail"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={{ marginRight: "10px" }}
           />
           <input
             className="form-control"
@@ -113,13 +113,11 @@ const Users = () => {
             placeholder="Senha"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={{ marginRight: "10px" }}
           />
           <select
             className="form-control"
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            style={{ marginRight: "10px" }}
           >
             <option value="user">Usuário</option>
             <option value="admin">Admin</option>
@@ -127,7 +125,6 @@ const Users = () => {
           <button
             className="btn btn-success"
             onClick={handleAddUser}
-            style={{ marginLeft: "10px" }}
           >
             Adicionar
           </button>
@@ -141,31 +138,28 @@ const Users = () => {
             <th>Nome</th>
             <th>E-mail</th>
             <th>Tipo</th>
-            {loggedInUser.role === "admin" && <th>Ações</th>}
+            {loggedUser.role === "admin" && <th>Ações</th>}
           </tr>
         </thead>
         <tbody>
           {users.map((user, index) => (
             <tr
               key={user.id}
-              style={
-                user.id === loggedInUser.id
-                  ? { backgroundColor: "#f8f9fa" }
-                  : {}
-              }
+              style={{
+                backgroundColor: user.id === loggedUser.id ? "#f9f9f9" : "transparent",
+              }}
             >
-              <td>{index + 1}</td>
+              <td>{index + 1 + (page - 1) * 5}</td>
               <td>{user.name}</td>
               <td>{user.email}</td>
               <td>{user.role === "admin" ? "Admin" : "Usuário"}</td>
-              {loggedInUser.role === "admin" && (
+              {loggedUser.role === "admin" && (
                 <td>
-                  {user.id !== loggedInUser.id && (
+                  {user.id !== loggedUser.id && (
                     <>
                       <button
                         className="btn btn-warning btn-sm"
-                        onClick={() => openEditModal(user)}
-                        style={{ marginRight: "10px" }}
+                        onClick={() => handleEditUser(user)}
                       >
                         Editar
                       </button>
@@ -184,61 +178,25 @@ const Users = () => {
         </tbody>
       </table>
 
-      {selectedUser && (
-        <div className="modal" style={{ display: "block" }}>
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Editar Usuário</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={closeEditModal}
-                >
-                </button>
-              </div>
-              <div className="modal-body">
-                <input
-                  className="form-control mb-2"
-                  type="text"
-                  placeholder="Nome"
-                  value={selectedUser.name}
-                  onChange={(e) =>
-                    setSelectedUser({ ...selectedUser, name: e.target.value })
-                  }
-                />
-                <input
-                  className="form-control mb-2"
-                  type="email"
-                  placeholder="E-mail"
-                  value={selectedUser.email}
-                  onChange={(e) =>
-                    setSelectedUser({ ...selectedUser, email: e.target.value })
-                  }
-                />
-                <select
-                  className="form-control mb-2"
-                  value={selectedUser.role}
-                  onChange={(e) =>
-                    setSelectedUser({ ...selectedUser, role: e.target.value })
-                  }
-                >
-                  <option value="user">Usuário</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              <div className="modal-footer">
-                <button className="btn btn-secondary" onClick={closeEditModal}>
-                  Cancelar
-                </button>
-                <button className="btn btn-primary" onClick={handleUpdateUser}>
-                  Salvar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className="d-flex justify-content-between">
+        <button
+          className="btn btn-primary"
+          onClick={handlePreviousPage}
+          disabled={page === 1}
+        >
+          Voltar
+        </button>
+        <span>
+          Página {page} de {totalPages}
+        </span>
+        <button
+          className="btn btn-primary"
+          onClick={handleNextPage}
+          disabled={page === totalPages}
+        >
+          Avançar
+        </button>
+      </div>
     </div>
   );
 };

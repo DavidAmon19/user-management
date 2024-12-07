@@ -1,5 +1,5 @@
-const { User } = require('../models');
-const bcrypt = require('bcrypt');
+const { User } = require("../models");
+const bcrypt = require("bcrypt");
 
 module.exports = {
   async createUser(req, res) {
@@ -7,21 +7,45 @@ module.exports = {
       const { name, email, password, role } = req.body;
 
       const hashedPassword = await bcrypt.hash(password, 8);
-      const newUser = await User.create({ name, email, password: hashedPassword, role });
+      const newUser = await User.create({
+        name,
+        email,
+        password: hashedPassword,
+        role,
+      });
 
-      res.status(201).json({ message: 'Usuário criado com sucesso', user: newUser });
+      res
+        .status(201)
+        .json({ message: "Usuário criado com sucesso", user: newUser });
     } catch (error) {
-      res.status(500).json({ error: 'Erro ao criar usuário', details: error.message });
+      res
+        .status(500)
+        .json({ error: "Erro ao criar usuário", details: error.message });
       console.log(error);
     }
   },
 
   async listUsers(req, res) {
     try {
-      const users = await User.findAll({ attributes: ['id', 'name', 'email', 'role', 'isActive'] });
-      res.status(200).json(users);
+      const { page = 1, limit = 5 } = req.query;
+      const offset = (page - 1) * limit;
+
+      const { count, rows } = await User.findAndCountAll({
+        attributes: ["id", "name", "email", "role"],
+        offset: parseInt(offset),
+        limit: parseInt(limit),
+      });
+
+      res.status(200).json({
+        users: rows,
+        total: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: parseInt(page),
+      });
     } catch (error) {
-      res.status(500).json({ error: 'Erro ao listar usuários', details: error.message });
+      res
+        .status(500)
+        .json({ error: "Erro ao listar usuários", details: error.message });
     }
   },
 
@@ -32,15 +56,19 @@ module.exports = {
 
       const user = await User.findByPk(id);
       if (!user) {
-        return res.status(404).json({ error: 'Usuário não encontrado' });
+        return res.status(404).json({ error: "Usuário não encontrado" });
       }
 
-      const hashedPassword = password ? await bcrypt.hash(password, 8) : user.password;
+      const hashedPassword = password
+        ? await bcrypt.hash(password, 8)
+        : user.password;
 
       await user.update({ name, email, password: hashedPassword, isActive });
-      res.status(200).json({ message: 'Usuário atualizado com sucesso', user });
+      res.status(200).json({ message: "Usuário atualizado com sucesso", user });
     } catch (error) {
-      res.status(500).json({ error: 'Erro ao atualizar usuário', details: error.message });
+      res
+        .status(500)
+        .json({ error: "Erro ao atualizar usuário", details: error.message });
     }
   },
 
@@ -50,13 +78,15 @@ module.exports = {
 
       const user = await User.findByPk(id);
       if (!user) {
-        return res.status(404).json({ error: 'Usuário não encontrado' });
+        return res.status(404).json({ error: "Usuário não encontrado" });
       }
 
       await user.destroy();
-      res.status(200).json({ message: 'Usuário deletado com sucesso' });
+      res.status(200).json({ message: "Usuário deletado com sucesso" });
     } catch (error) {
-      res.status(500).json({ error: 'Erro ao deletar usuário', details: error.message });
+      res
+        .status(500)
+        .json({ error: "Erro ao deletar usuário", details: error.message });
     }
   },
 };
