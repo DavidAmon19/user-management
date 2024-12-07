@@ -1,12 +1,14 @@
-const dotenv = require('dotenv');
-
 module.exports = {
   development: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    dialect: "postgres"
-  }
-}
+    dialect: "sqlite",
+    storage: "./src/database/database.sqlite",
+  },
+  test: {
+    dialect: "sqlite",
+    storage: ":memory:", 
+  },
+  production: {
+    dialect: "sqlite",
+    storage: "./src/database/database.sqlite", 
+  },
+};

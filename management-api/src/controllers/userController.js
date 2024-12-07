@@ -1,5 +1,5 @@
 const { User } = require('../models');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 
 module.exports = {
   async createUser(req, res) {
@@ -12,6 +12,7 @@ module.exports = {
       res.status(201).json({ message: 'Usuário criado com sucesso', user: newUser });
     } catch (error) {
       res.status(500).json({ error: 'Erro ao criar usuário', details: error.message });
+      console.log(error);
     }
   },
 
