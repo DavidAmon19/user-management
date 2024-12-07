@@ -1,11 +1,15 @@
 const jwt = require('jsonwebtoken');
 
-module.exports = {
+const authMiddleware = {
   verifyToken(req, res, next) {
-    const token = req.headers['authorization'];
-    if (!token) {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
       return res.status(401).json({ error: 'Token não fornecido' });
     }
+
+    const token = authHeader.startsWith("Bearer ")
+      ? authHeader.slice(7, authHeader.length) 
+      : authHeader;
 
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
       if (err) {
@@ -19,7 +23,7 @@ module.exports = {
   },
 
   verifyAdmin(req, res, next) {
-    this.verifyToken(req, res, () => {
+    authMiddleware.verifyToken(req, res, () => { // Referencie authMiddleware.verifyToken explicitamente
       if (req.userRole !== 'admin') {
         return res.status(403).json({ error: 'Acesso restrito a administradores' });
       }
@@ -28,7 +32,7 @@ module.exports = {
   },
 
   verifySelfOrAdmin(req, res, next) {
-    this.verifyToken(req, res, () => {
+    authMiddleware.verifyToken(req, res, () => {
       if (req.userRole !== 'admin' && req.userId !== parseInt(req.params.id)) {
         return res.status(403).json({ error: 'Acesso negado' });
       }
@@ -36,3 +40,5 @@ module.exports = {
     });
   },
 };
+
+module.exports = authMiddleware;

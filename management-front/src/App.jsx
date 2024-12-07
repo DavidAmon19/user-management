@@ -19,8 +19,12 @@ const App = () => {
           path="/"
           element={
             <PrivateRoute>
-              <Sidebar />
-              <Home />
+              <div style={{ display: "flex", height: "100vh" }}>
+                <Sidebar />
+                <div style={{ marginLeft: "250px", padding: "20px", flex: 1 }}>
+                  <Home />
+                </div>
+              </div>
             </PrivateRoute>
           }
         />
@@ -28,8 +32,12 @@ const App = () => {
           path="/users"
           element={
             <PrivateRoute>
-              <Sidebar />
-              <Users />
+              <div style={{ display: "flex", height: "100vh" }}>
+                <Sidebar />
+                <div style={{ marginLeft: "250px", padding: "20px", flex: 1 }}>
+                  <Users />
+                </div>
+              </div>
             </PrivateRoute>
           }
         />
