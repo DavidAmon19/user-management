@@ -1,4 +1,4 @@
-```markdown
+
 # Gestão de Usuários - React + Node.js + Express
 
 Este projeto consiste em uma aplicação de gestão de usuários, 
