@@ -216,5 +216,3 @@ O frontend estará acessível em **http://localhost:5173/**.
 Este projeto oferece uma implementação básica para gestão de usuários, com controle de permissões para usuários admin e normais. Ele usa um backend com Node.js e Express e um frontend com React. A autenticação é feita utilizando JWT, e o banco de dados SQLite é utilizado para persistir os dados de usuários.
 
 ---
-
-```
