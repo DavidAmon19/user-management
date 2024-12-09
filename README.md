@@ -11,10 +11,10 @@ qualquer usuário do sistema.
 todos os usuários do sistema, mas só pode **editar seu próprio perfil**.
 
 A aplicação foi construída utilizando:
-## Frontend: React
-## Backend: Node.js, Express
-## Banco de Dados: SQLite
-## Autenticação: JWT (JSON Web Token)
+- **Frontend**: React
+- **Backend**: Node.js, Express
+- **Banco de Dados**: SQLite
+- **Autenticação**: JWT (JSON Web Token)
 
 ## Estrutura do Projeto
 
