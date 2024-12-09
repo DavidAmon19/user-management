@@ -1,16 +1,20 @@
 ```markdown
 # Gestão de Usuários - React + Node.js + Express
 
-Este projeto consiste em uma aplicação de gestão de usuários, onde existem dois tipos de usuários: **Admin** e **Normal**.
+Este projeto consiste em uma aplicação de gestão de usuários, 
+onde existem dois tipos de usuários: **Admin** e **Normal**.
 
-- O **usuário Admin** tem permissões completas, podendo **criar**, **editar** e **excluir** qualquer usuário do sistema.
-- O **usuário Normal** tem permissões limitadas. Ele pode **visualizar** todos os usuários do sistema, mas só pode **editar seu próprio perfil**.
+- O **usuário Admin** tem permissões completas, podendo **criar**, **editar** e **excluir** 
+qualquer usuário do sistema.
+
+- O **usuário Normal** tem permissões limitadas. Ele pode **visualizar** 
+todos os usuários do sistema, mas só pode **editar seu próprio perfil**.
 
 A aplicação foi construída utilizando:
-- **Frontend**: React
-- **Backend**: Node.js, Express
-- **Banco de Dados**: SQLite
-- **Autenticação**: JWT (JSON Web Token)
+## Frontend: React
+## Backend: Node.js, Express
+## Banco de Dados: SQLite
+## Autenticação: JWT (JSON Web Token)
 
 ## Estrutura do Projeto
 
@@ -20,7 +24,7 @@ O projeto está organizado em duas pastas principais:
 
 ### Estrutura do Backend (`management-api`)
 
-```plaintext
+```bash
 management-api
 ├─ package-lock.json
 ├─ package.json
@@ -53,7 +57,7 @@ management-api
 
 ### Estrutura do Frontend (`management-front`)
 
-```plaintext
+```bash
 management-front
 ├─ .gitignore
 ├─ dist
