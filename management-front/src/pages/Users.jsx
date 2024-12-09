@@ -11,7 +11,7 @@ const Users = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("user");
-  const [showModal, setShowModal] = useState(false); 
+  const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
 
   const loggedUser = JSON.parse(localStorage.getItem("user"));
@@ -32,7 +32,7 @@ const Users = () => {
 
   const handleAddUser = async () => {
     try {
-      const response = await api.post("/users", { name, email, password, role });
+      await api.post("/users", { name, email, password, role });
       toast.success("Usuário adicionado com sucesso!");
       fetchUsers();
       setName("");
@@ -92,7 +92,7 @@ const Users = () => {
         </button>
       </div>
       {loggedUser.role === "admin" && (
-        <div className="d-flex mb-4">
+        <div className="d-flex mb-4 gap-2">
           <input
             className="form-control"
             type="text"
@@ -122,10 +122,7 @@ const Users = () => {
             <option value="user">Usuário</option>
             <option value="admin">Admin</option>
           </select>
-          <button
-            className="btn btn-success"
-            onClick={handleAddUser}
-          >
+          <button className="btn btn-success" onClick={handleAddUser}>
             Adicionar
           </button>
         </div>
@@ -143,12 +140,7 @@ const Users = () => {
         </thead>
         <tbody>
           {users.map((user, index) => (
-            <tr
-              key={user.id}
-              style={{
-                backgroundColor: user.id === loggedUser.id ? "#f9f9f9" : "transparent",
-              }}
-            >
+            <tr key={user.id}>
               <td>{index + 1 + (page - 1) * 5}</td>
               <td>{user.name}</td>
               <td>{user.email}</td>
@@ -158,7 +150,8 @@ const Users = () => {
                   {user.id !== loggedUser.id && (
                     <>
                       <button
-                        className="btn btn-warning btn-sm"
+                        style={{ marginRight: 5 }}
+                        className="btn btn-warning btn-sm" 
                         onClick={() => handleEditUser(user)}
                       >
                         Editar
@@ -196,6 +189,80 @@ const Users = () => {
         >
           Avançar
         </button>
+      </div>
+
+      <div
+        className={`modal fade ${showModal ? "show d-block" : ""}`}
+        tabIndex="-1"
+        style={{ backgroundColor: showModal ? "rgba(0, 0, 0, 0.5)" : "transparent" }}
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Editar Usuário</h5>
+              <button
+                type="button"
+                className="btn-close"
+                onClick={() => setShowModal(false)}
+              ></button>
+            </div>
+            <div className="modal-body">
+              <form>
+                <div className="mb-3">
+                  <label className="form-label">Nome</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={editingUser?.name || ""}
+                    onChange={(e) =>
+                      setEditingUser({ ...editingUser, name: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">E-mail</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    value={editingUser?.email || ""}
+                    onChange={(e) =>
+                      setEditingUser({ ...editingUser, email: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Tipo</label>
+                  <select
+                    className="form-control"
+                    value={editingUser?.role || "user"}
+                    onChange={(e) =>
+                      setEditingUser({ ...editingUser, role: e.target.value })
+                    }
+                  >
+                    <option value="user">Usuário</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+              </form>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setShowModal(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={saveEditUser}
+              >
+                Salvar
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

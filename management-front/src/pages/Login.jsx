@@ -12,7 +12,7 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setIsLoading(true); // Ativa o estado de carregamento
+    setIsLoading(true); 
   
     try {
       const response = await api.post("/auth/login", { email, password });
@@ -21,18 +21,17 @@ const Login = () => {
   
       toast.success("Login realizado com sucesso!");
   
-      // Aguarda o tempo do toast antes de navegar
       setTimeout(() => {
         if (response.data.user.role === "admin") {
           navigate("/users");
         } else {
           navigate("/");
         }
-      }, 2000); // Delay para sincronizar com a mensagem do toast
+      }, 2000); 
     } catch (err) {
       toast.error("Credenciais inválidas! Verifique seu e-mail e senha.");
     } finally {
-      setTimeout(() => setIsLoading(false), 2000); // Desativa o carregamento após o delay
+      setTimeout(() => setIsLoading(false), 2000); 
     }
   };
   

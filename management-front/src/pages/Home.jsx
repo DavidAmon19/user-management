@@ -10,7 +10,7 @@ const Home = () => {
       </p>
 
       <div>
-        <img style={{ width: "400px", height: "350px" }} src={logo} alt="" />
+        <img style={{ width: "600px", height: "550px" }} src={logo} alt="" />
       </div>
     </div>
   );

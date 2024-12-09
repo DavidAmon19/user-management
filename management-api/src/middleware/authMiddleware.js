@@ -23,7 +23,7 @@ const authMiddleware = {
   },
 
   verifyAdmin(req, res, next) {
-    authMiddleware.verifyToken(req, res, () => { // Referencie authMiddleware.verifyToken explicitamente
+    authMiddleware.verifyToken(req, res, () => {
       if (req.userRole !== 'admin') {
         return res.status(403).json({ error: 'Acesso restrito a administradores' });
       }
